@@ -265,20 +265,35 @@ terraform/
 
 ---
 
-## Remote Terraform State
+## Bootstrap Infrastructure
 
-Terraform state is stored in a separate S3 backend created by the `bootstrap/` Terraform project.
+The project maintains a small persistent bootstrap layer that is separate
+from the disposable application infrastructure.
+
+The bootstrap Terraform configuration manages:
+
+- Versioned S3 remote-state bucket
+- Native Terraform state locking
+- GitHub OIDC provider
+- GitHub Actions IAM role
+- Terraform deployment permissions
+
+This solves an important bootstrap dependency: the application stack can be
+destroyed to reduce AWS costs without destroying the GitHub identity required
+to recreate it.
 
 ```text
+GitHub Actions
+      ↓
+Persistent OIDC / IAM
+      ↓
 Terraform
-    ↓
-Separate S3 State Bucket
-    ├── Versioning
-    ├── Encryption
-    └── Native state locking
-```
+      ↓
+Application Stack
 
-The state infrastructure is intentionally separated from the application infrastructure so the main stack can be destroyed without deleting its own state backend.
+Terraform
+      ↓
+Persistent S3 State Backend
 
 ---
 
@@ -379,12 +394,13 @@ aws-agriculture-data-pipeline/
 │
 ├── .github/
 │   └── workflows/
-│       ├── aws-oidc-test.yml
 │       ├── terraform-ci.yml
 │       └── terraform-deploy.yml
 │
 ├── bootstrap/
-│   └── main.tf
+│   ├── main.tf
+│   ├── github_oidc.tf
+│   └── github_permissions.tf
 │
 ├── diagrams/
 │   └── architecture.png
@@ -400,8 +416,6 @@ aws-agriculture-data-pipeline/
 │   ├── athena.tf
 │   ├── backend.tf
 │   ├── eventbridge.tf
-│   ├── github_oidc.tf
-│   ├── github_permissions.tf
 │   ├── glue.tf
 │   ├── iam.tf
 │   ├── lambda.tf
