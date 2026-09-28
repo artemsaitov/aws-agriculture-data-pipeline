@@ -15,7 +15,7 @@ __pycache__/
 *.zip
 
 # Local test output
-response.json
+response*.json
 
 # macOS
-.DS_Store
+.DS_Storeresponse*.json

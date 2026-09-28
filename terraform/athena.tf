@@ -1,5 +1,6 @@
 resource "aws_athena_workgroup" "agriculture" {
-  name = "${var.project_name}-workgroup"
+  name          = "${var.project_name}-workgroup"
+  force_destroy = true
 
   configuration {
     enforce_workgroup_configuration = true
