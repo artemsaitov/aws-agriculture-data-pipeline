@@ -9,17 +9,23 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+
 permissions:
+  id-token: write
   contents: read
 
 jobs:
   terraform-checks:
-    name: Terraform Checks
+    name: Terraform Checks and Plan
     runs-on: ubuntu-latest
 
     defaults:
       run:
         working-directory: terraform
+
+    env:
+      TF_VAR_alert_email: ${{ secrets.TF_VAR_alert_email }}
 
     steps:
       - name: Checkout repository
@@ -33,8 +39,18 @@ jobs:
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::927678863298:role/agriculture-data-pipeline-github-actions-role
+          role-session-name: TerraformPlan
+          aws-region: us-east-1
+
       - name: Terraform Init
-        run: terraform init -backend=false
+        run: terraform init
 
       - name: Terraform Validate
         run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -no-color
