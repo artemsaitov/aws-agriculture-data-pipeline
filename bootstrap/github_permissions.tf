@@ -1,5 +1,5 @@
 resource "aws_iam_role_policy" "github_terraform_plan" {
-  name = "${var.project_name}-github-terraform-plan"
+  name = "agriculture-data-pipeline-github-terraform"
   role = aws_iam_role.github_actions.id
 
   policy = jsonencode({
@@ -126,8 +126,8 @@ resource "aws_iam_role_policy" "github_terraform_plan" {
         ]
 
         Resource = [
-          "arn:aws:s3:::agri-pipeline-tfstate-8ba3c290/agriculture-data-pipeline/terraform.tfstate",
-          "arn:aws:s3:::agri-pipeline-tfstate-8ba3c290/agriculture-data-pipeline/terraform.tfstate.tflock"
+          "${aws_s3_bucket.terraform_state.arn}/agriculture-data-pipeline/terraform.tfstate",
+          "${aws_s3_bucket.terraform_state.arn}/agriculture-data-pipeline/terraform.tfstate.tflock"
         ]
       },
 
@@ -140,7 +140,7 @@ resource "aws_iam_role_policy" "github_terraform_plan" {
           "s3:GetBucketLocation"
         ]
 
-        Resource = "arn:aws:s3:::agri-pipeline-tfstate-8ba3c290"
+        Resource = aws_s3_bucket.terraform_state.arn
       }
     ]
   })

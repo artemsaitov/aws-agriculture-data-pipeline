@@ -7,7 +7,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 resource "aws_iam_role" "github_actions" {
-  name = "${var.project_name}-github-actions-role"
+  name = "agriculture-data-pipeline-github-actions-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -36,7 +36,8 @@ resource "aws_iam_role" "github_actions" {
   })
 
   tags = {
-    Project     = var.project_name
+    Project     = "agriculture-data-pipeline"
     Environment = "dev"
+    Purpose     = "github-actions"
   }
 }
