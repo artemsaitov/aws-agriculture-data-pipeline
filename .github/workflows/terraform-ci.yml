@@ -16,8 +16,28 @@ permissions:
   contents: read
 
 jobs:
+  python-tests:
+    name: Python Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install boto3
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
   terraform-checks:
     name: Terraform Checks and Plan
+    needs: python-tests
     runs-on: ubuntu-latest
 
     defaults:
@@ -42,7 +62,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::927678863298:role/agriculture-data-pipeline-github-actions-role
+          role-to-assume: arn:aws:iam::YOUR_ACCOUNT_ID:role/agriculture-data-pipeline-github-actions-role
           role-session-name: TerraformPlan
           aws-region: us-east-1
 
