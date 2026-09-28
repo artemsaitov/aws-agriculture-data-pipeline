@@ -4,6 +4,7 @@ import urllib.parse
 
 import boto3
 
+
 s3 = boto3.client("s3")
 
 DATA_BUCKET_NAME = os.environ["DATA_BUCKET_NAME"]
@@ -25,12 +26,50 @@ def transform_record(raw_data):
     }
 
 
+def build_processed_key(processed_data):
+    """
+    Build a deterministic S3 key using the farm ID and
+    weather observation timestamp.
+
+    Reprocessing the same farm observation writes to the
+    same S3 key instead of creating a duplicate object.
+    """
+
+    farm_id = processed_data["farm_id"]
+    observation_time = processed_data["observation_time"]
+
+    # Example:
+    # 2026-09-27T18:00 -> 20260927T1800
+    safe_observation_time = (
+        observation_time
+        .replace("-", "")
+        .replace(":", "")
+    )
+
+    # Example:
+    # 2026-09-27 -> 2026/09/27
+    observation_date = (
+        observation_time
+        .split("T")[0]
+        .replace("-", "/")
+    )
+
+    return (
+        f"processed/{farm_id}/"
+        f"{observation_date}/"
+        f"{safe_observation_time}.json"
+    )
+
+
 def lambda_handler(event, context):
     for record in event["Records"]:
         bucket = record["s3"]["bucket"]["name"]
+
         raw_key = urllib.parse.unquote_plus(
             record["s3"]["object"]["key"]
         )
+
+        print(f"Processing s3://{bucket}/{raw_key}")
 
         response = s3.get_object(
             Bucket=bucket,
@@ -43,10 +82,8 @@ def lambda_handler(event, context):
 
         processed_data = transform_record(raw_data)
 
-        processed_key = raw_key.replace(
-            "raw/",
-            "processed/",
-            1
+        processed_key = build_processed_key(
+            processed_data
         )
 
         s3.put_object(
