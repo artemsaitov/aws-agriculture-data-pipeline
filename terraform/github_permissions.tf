@@ -7,6 +7,82 @@ resource "aws_iam_role_policy" "github_terraform_plan" {
 
     Statement = [
       {
+        Sid    = "DeployProjectInfrastructure"
+        Effect = "Allow"
+
+        Action = [
+          # Lambda
+          "lambda:CreateFunction",
+          "lambda:UpdateFunctionCode",
+          "lambda:UpdateFunctionConfiguration",
+          "lambda:DeleteFunction",
+          "lambda:AddPermission",
+          "lambda:RemovePermission",
+          "lambda:TagResource",
+          "lambda:UntagResource",
+
+          # S3
+          "s3:CreateBucket",
+          "s3:DeleteBucket",
+          "s3:PutBucketVersioning",
+          "s3:PutEncryptionConfiguration",
+          "s3:PutBucketPublicAccessBlock",
+          "s3:PutBucketNotification",
+          "s3:PutBucketTagging",
+          "s3:DeleteBucketTagging",
+
+          # EventBridge Scheduler
+          "scheduler:CreateSchedule",
+          "scheduler:UpdateSchedule",
+          "scheduler:DeleteSchedule",
+          "scheduler:TagResource",
+          "scheduler:UntagResource",
+
+          # Glue
+          "glue:CreateDatabase",
+          "glue:UpdateDatabase",
+          "glue:DeleteDatabase",
+          "glue:CreateTable",
+          "glue:UpdateTable",
+          "glue:DeleteTable",
+
+          # Athena
+          "athena:CreateWorkGroup",
+          "athena:UpdateWorkGroup",
+          "athena:DeleteWorkGroup",
+
+          # CloudWatch
+          "cloudwatch:PutMetricAlarm",
+          "cloudwatch:DeleteAlarms",
+          "cloudwatch:TagResource",
+          "cloudwatch:UntagResource",
+
+          # SNS
+          "sns:CreateTopic",
+          "sns:DeleteTopic",
+          "sns:SetTopicAttributes",
+          "sns:Subscribe",
+          "sns:Unsubscribe",
+          "sns:TagResource",
+          "sns:UntagResource",
+
+          # IAM
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:PassRole"
+        ]
+
+        Resource = "*"
+      },
+
+      {
         Sid    = "ReadProjectInfrastructure"
         Effect = "Allow"
 
